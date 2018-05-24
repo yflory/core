@@ -74,6 +74,6 @@ fi
 
 cd ../../
 
-cp -t "build/ \
-  "./icu/source/lib/libicudata$SHARED_LIB_EXT" \
-  "./icu/source/lib/libicuuc$SHARED_LIB_EXT"
+cp -t build/ \
+  ./icu/source/lib/libicudata$SHARED_LIB_EXT \
+  ./icu/source/lib/libicuuc$SHARED_LIB_EXT
