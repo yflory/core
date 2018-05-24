@@ -6,7 +6,7 @@ SCRIPTPATH=$(dirname "$SCRIPT")
 ICU_MAJOR_VER=58
 ICU_MINOR_VER=2
 
-SHARED_LIB_VER=$ICU_MAJOR_VER.$ICU_MINOR_VER
+SHARED_LIB_VER=$ICU_MAJOR_VER
 
 os=$(uname -s)
 platform=""
@@ -16,13 +16,11 @@ case "$os" in
     platform="linux"
     BUILD_PLATFORM=Linux
     SHARED_LIB_EXT=.so.$SHARED_LIB_VER
-    SHARED_LIB_SHORT_EXT=.so.$ICU_MAJOR_VER
     ;;
   Darwin*)
     platform="mac"
     BUILD_PLATFORM=MacOSX
     SHARED_LIB_EXT=.$SHARED_LIB_VER.dylib
-    SHARED_LIB_SHORT_EXT=.$ICU_MAJOR_VER.dylib
     ;;
   *)        exit ;;
 esac
@@ -64,6 +62,7 @@ cd ./icu/source/
 if [ ! -f "./Makefile" ]
 then
  ./runConfigureICU $BUILD_PLATFORM
+ sed -i 's/\(SO_TARGET_VERSION = \).*/\1'$ICU_MAJOR_VER'/' icudefs.mk
 fi
 
 make
@@ -75,5 +74,6 @@ fi
 
 cd ../../
 
-cp "./icu/source/lib/libicudata$SHARED_LIB_EXT" "build/libicudata$SHARED_LIB_SHORT_EXT"
-cp "./icu/source/lib/libicuuc$SHARED_LIB_EXT" "build/libicuuc$SHARED_LIB_SHORT_EXT"
+cp -t "build/ \
+  "./icu/source/lib/libicudata$SHARED_LIB_EXT" \
+  "./icu/source/lib/libicuuc$SHARED_LIB_EXT"
