@@ -1142,6 +1142,10 @@ std::vector<NSFonts::CFontInfo*> CFontList::GetAllByName(const std::wstring& str
 
 void CFontList::LoadFromArrayFiles(std::vector<std::wstring>& oArray, int nFlag)
 {
+    FILE* f = fopen("/tmp/onlyoffice.fonts.log", "a+");
+    fprintf(f, "CFontList::LoadFromArrayFiles_Start\n");
+    fclose(f);
+
 	size_t nCount = oArray.size();
 
 	FT_Library pLibrary = NULL;
@@ -1189,6 +1193,12 @@ void CFontList::LoadFromArrayFiles(std::vector<std::wstring>& oArray, int nFlag)
             if (_pos_dfont != std::wstring::npos && _pos_dfont == (oArray[nIndex].length() - 6))
                 continue;
         }
+
+        std::string sTmp = U_TO_UTF8(oArray[nIndex]);
+        fopen("/tmp/onlyoffice.fonts.log", "a+");
+        fprintf(f, sTmp.c_str());
+        fprintf(f, "\n");
+        fclose(f);
 
 		// open file
 		CFontStream oStream;
@@ -1402,6 +1412,10 @@ void CFontList::LoadFromArrayFiles(std::vector<std::wstring>& oArray, int nFlag)
 
 	::free( pParams );
 	FT_Done_FreeType(pLibrary);
+
+    f = fopen("/tmp/onlyoffice.fonts.log", "a+");
+    fprintf(f, "CFontList::LoadFromArrayFiles_End\n");
+    fclose(f);
 }
 void CFontList::LoadFromFolder(const std::wstring& strDirectory)
 {
