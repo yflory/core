@@ -1423,6 +1423,24 @@ void CFontList::LoadFromFolder(const std::wstring& strDirectory)
 	this->LoadFromArrayFiles(oArray);
 }
 
+void CFontList::InitializeRanges(unsigned char* data)
+{
+    RELEASEARRAYOBJECTS(m_pRanges)
+
+    NSMemoryUtils::CByteReader oReader(data);
+    m_nRangesCount = oReader.GetInt();
+
+    if (m_nRangesCount > 0)
+        m_pRanges = new CFontRange[m_nRangesCount];
+
+    for (int nIndex = 0; nIndex < m_nRangesCount; ++nIndex)
+    {
+        m_pRanges[nIndex].Name = oReader.GetStringUTF8();
+        m_pRanges[nIndex].Start = oReader.GetInt();
+        m_pRanges[nIndex].End = oReader.GetInt();
+    }
+}
+
 bool CFontList::CheckLoadFromFolderBin(const std::wstring& strDirectory)
 {
 	std::wstring strPath = strDirectory + L"/font_selection.bin";
@@ -1449,18 +1467,7 @@ bool CFontList::CheckLoadFromFolderBin(const std::wstring& strDirectory)
 
     if ((_pBuffer - pBuffer) < dwLen1)
     {
-        NSMemoryUtils::CByteReader oReader(_pBuffer);
-        m_nRangesCount = oReader.GetInt();
-
-        if (m_nRangesCount > 0)
-            m_pRanges = new CFontRange[m_nRangesCount];
-
-        for (int nIndex = 0; nIndex < m_nRangesCount; ++nIndex)
-        {
-            m_pRanges[nIndex].Name = oReader.GetStringUTF8();
-            m_pRanges[nIndex].Start = oReader.GetInt();
-            m_pRanges[nIndex].End = oReader.GetInt();
-        }
+        InitializeRanges(_pBuffer);
     }
 
 	RELEASEARRAYOBJECTS(pBuffer);
@@ -1545,6 +1552,11 @@ void CApplicationFonts::Initialize(bool bIsCheckSelection)
 #endif
 
 	m_oCache.m_pApplicationFontStreams = &m_oStreams;
+}
+
+void CApplicationFonts::InitializeRanges(unsigned char* data)
+{
+    m_oList.InitializeRanges(data);
 }
 
 NSFonts::IFontManager* CApplicationFonts::GenerateFontManager()
