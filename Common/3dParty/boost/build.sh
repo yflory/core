@@ -27,7 +27,15 @@ cd "$SCRIPTPATH/boost_1_58_0"
 
 folder="build/$platform$arch"
 if [ ! -d $folder ]; then
+update-alternatives --remove gcc /emsdk/upstream/emscripten/emcc
+update-alternatives --remove g++ /emsdk/upstream/emscripten/em++
+update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-5 20
+update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-5 20
   ./bootstrap.sh --with-libraries=filesystem,system,date_time,regex
+update-alternatives --remove gcc /usr/bin/gcc-5
+update-alternatives --remove g++ /usr/bin/g++-5
+update-alternatives --install /usr/bin/gcc gcc /emsdk/upstream/emscripten/emcc 20
+update-alternatives --install /usr/bin/g++ g++ /emsdk/upstream/emscripten/em++ 20
 
    stage="stage"
    if [ -d $stage ]; then
