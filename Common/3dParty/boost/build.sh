@@ -51,7 +51,9 @@ if [ ! -d $folder ]; then
   ./b2 --clean
   ./bjam link=static --debug-configuration
   cp stage/lib/* "$folder/static/"
-
+  # added ranlib needed
+  /emsdk/upstream/bin/llvm-ranlib /core/Common/3dParty/boost/boost_1_58_0/build/linux_32/static/libboost_regex.a
+ 
 #  ./b2 --clean
 #  ./bjam link=static cxxflags=-fPIC
 #  cp stage/lib/* "$folder/static_fpic/"
