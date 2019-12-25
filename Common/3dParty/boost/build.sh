@@ -30,7 +30,7 @@ if [ ! -d $folder ]; then
   ./bootstrap.sh --with-toolset=gcc --with-libraries=filesystem,system,date_time,regex
 
   ## Custom gcc.jam to force correct ar and ranlib which fail under emscripten
-  cp gcc.jam boost_1_58_0/tools/build/src/tools/gcc.jam
+  cp ../gcc.jam ./tools/build/src/tools/gcc.jam
   mv /usr/bin/rc /usr/bin/linux-rc
   ln -s /usr/bin/linux-rc /usr/bin/rc
   update-alternatives --install /usr/bin/gcc gcc /emsdk/upstream/emscripten/emcc 20
@@ -51,7 +51,7 @@ if [ ! -d $folder ]; then
   mkdir -p "$folder/shared"
 
   ./b2 --clean
-  ./bjam link=static
+  ./bjam link=static --debug-configuration
   cp stage/lib/* "$folder/static/"
 
 #  ./b2 --clean
