@@ -25,15 +25,18 @@ cd "$SCRIPTPATH/boost_1_58_0"
 
 folder="build/$platform$arch"
 if [ ! -d $folder ]; then
-update-alternatives --remove gcc /emsdk/upstream/emscripten/emcc
-update-alternatives --remove g++ /emsdk/upstream/emscripten/em++
-update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-5 20
-update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-5 20
-  ./bootstrap.sh --with-libraries=filesystem,system,date_time,regex
-update-alternatives --remove gcc /usr/bin/gcc-5
-update-alternatives --remove g++ /usr/bin/g++-5
-update-alternatives --install /usr/bin/gcc gcc /emsdk/upstream/emscripten/emcc 20
-update-alternatives --install /usr/bin/g++ g++ /emsdk/upstream/emscripten/em++ 20
+  ./bootstrap.sh --with-toolset=gcc --with-libraries=filesystem,system,date_time,regex
+
+  ## Custom gcc.jam to force correct ar and ranlib which fail under emscripten
+  cp gcc.jam boost_1_58_0/tools/build/src/tools/gcc.jam
+  mv /usr/bin/rc /usr/bin/linux-rc
+  ln -s /usr/bin/linux-rc /usr/bin/rc
+  update-alternatives --install /usr/bin/gcc gcc /emsdk/upstream/emscripten/emcc 20
+  update-alternatives --install /usr/bin/g++ g++ /emsdk/upstream/emscripten/em++ 20
+  update-alternatives --install /usr/bin/clang clang /emsdk/upstream/bin/clang 20
+  update-alternatives --install /usr/bin/clang++ clang++ /emsdk/upstream/bin/clang++ 20
+  update-alternatives --install /usr/bin/ar ar /emsdk/upstream/bin/llvm-ar 20
+  update-alternatives --install /usr/bin/rc rc /emsdk/upstream/bin/llvm-rc 20
 
    stage="stage"
    if [ -d $stage ]; then
@@ -49,11 +52,11 @@ update-alternatives --install /usr/bin/g++ g++ /emsdk/upstream/emscripten/em++ 2
   ./bjam link=static
   cp stage/lib/* "$folder/static/"
 
-  ./b2 --clean
-  ./bjam link=static cxxflags=-fPIC
-  cp stage/lib/* "$folder/static_fpic/"
+#  ./b2 --clean
+#  ./bjam link=static cxxflags=-fPIC
+#  cp stage/lib/* "$folder/static_fpic/"
 
-  ./b2 --clean
-  ./bjam link=shared
-  cp stage/lib/* "$folder/shared/"
+#  ./b2 --clean
+#  ./bjam link=shared
+#  cp stage/lib/* "$folder/shared/"
 fi
