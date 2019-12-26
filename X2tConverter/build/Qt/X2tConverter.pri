@@ -30,7 +30,7 @@ core_windows {
 }
 
 core_linux {
-    QMAKE_LFLAGS += -Wl,--rpath=./:./system
+    QMAKE_LFLAGS += -Wl,--rpath=./:./system -Wl,--shared-memory,--no-check-features
 }
 
 DEFINES += UNICODE \
@@ -117,7 +117,6 @@ LIBS += -L$$CORE_BUILDS_LIBRARIES_PATH -lHtmlFile
 LIBS += -L$$CORE_BUILDS_LIBRARIES_PATH -lUnicodeConverter
 #Crypto++
 LIBS += -L$$CORE_BUILDS_LIBRARIES_PATH -lCryptoPPLib
-
 #####################################################
 # внешнее подключение сторонних библиотек
 
