@@ -56,7 +56,7 @@ if [ -d "./icu" ]
 then
   echo "icu already exported"
 else
-  svn export http://source.icu-project.org/repos/icu/tags/release-$ICU_MAJOR_VER-$ICU_MINOR_VER/icu4c ./icu
+  svn export http://github.com/unicode-org/icu/tags/release-$ICU_MAJOR_VER-$ICU_MINOR_VER/icu4c ./icu
 fi
 
 # Workaround for building icu older than 60.0
