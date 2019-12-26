@@ -34,6 +34,16 @@
 #include "ASCConverters.h"
 
 #include <iostream>
+#include <assert.h>
+#include <stdio.h>
+#include <string.h>
+#include <emscripten.h>
+
+#ifdef NODERAWFS
+#define CWD ""
+#else
+#define CWD "/working/"
+#endif
 
 #define VALUE_TO_STRING(x) #x
 #define VALUE(x) VALUE_TO_STRING(x)
@@ -82,6 +92,48 @@ static std::wstring utf8_to_unicode(const char *src)
 	int wmain(int argc, wchar_t *argv[])
 #endif
 {
+  FILE *file;
+  int res;
+  char buffer[512];
+
+  // write something locally with node
+  EM_ASM(
+    var fs = require('fs');
+    fs.writeFileSync('foobar.txt', 'yeehaw');
+  );
+
+  // mount the current folder as a NODEFS instance
+  // inside of emscripten
+  EM_ASM(
+    FS.mkdir('/working');
+    FS.mount(NODEFS, { root: '.' }, '/working');
+  );
+  std::cout << "Mapping done" << std::endl;
+ // read and validate the contents of the file
+  file = fopen(CWD "foobar.txt", "r");
+  assert(file);
+  res = fread(buffer, sizeof(char), 6, file);
+  assert(res == 6);
+  fclose(file);
+
+  assert(!strcmp(buffer, "yeehaw"));
+
+  // write out something new
+  file = fopen(CWD "foobar.txt", "w");
+  assert(file);
+  res = fwrite("cheez", sizeof(char), 5, file);
+  assert(res == 5);
+  fclose(file);
+
+  // validate the changes were persisted to the underlying fs
+  EM_ASM(
+    var fs = require('fs');
+    var contents = fs.readFileSync('foobar.txt', { encoding: 'utf8' });
+    assert(contents === 'cheez');
+  );
+
+  puts("success");
+
    // check arguments
     if (argc < 2)
     {
@@ -106,6 +158,7 @@ static std::wstring utf8_to_unicode(const char *src)
     }
 	std::wstring sArg1, sArg2, sExePath;
 
+        std::cout << "Step1" << std::endl;
 #if !defined(_WIN32) && !defined (_WIN64)
     sExePath    = utf8_to_unicode(argv [0]);
     sArg1       = utf8_to_unicode(argv [1]);
@@ -115,15 +168,20 @@ static std::wstring utf8_to_unicode(const char *src)
     sArg1		= std::wstring(argv [1]);
 	if (argc >= 3) sArg2 = std::wstring(argv [2]);
 #endif
+        std::cout << "Step2" << std::endl;
 
 	_UINT32 result = 0;
     std::wstring sXmlExt = _T(".xml");
     if((sArg1.length() > 3) && (sXmlExt == sArg1.substr(sArg1.length() - sXmlExt.length(), sXmlExt.length())))
 	{
+        std::cout << "Step3" << std::endl;
 		NExtractTools::InputParams oInputParams;
+        std::cout << "Step3a" << std::endl;
 		if (oInputParams.FromXmlFile(sArg1) && (sArg2.empty() || oInputParams.FromXml(sArg2)))
 		{
+        std::cout << "Step4" << std::endl;
 			result = NExtractTools::fromInputParams(oInputParams);
+        std::cout << "Step5" << std::endl;
 		}
 		else
 		{
