@@ -25,7 +25,7 @@ include(../OfficeUtils/OfficeUtils.pri)
 CONFIG += core_static_link_xml_full
 include(../DesktopEditor/xml/build/qt/libxml2.pri)
 
-include(../Common/3dParty/curl/curl.pri)
+#include(../Common/3dParty/curl/curl.pri)
 
 # DOWNLOADER
 HEADERS += \
@@ -43,10 +43,10 @@ core_windows {
     LIBS += -lRpcrt4
     LIBS += -lShell32
 }
-core_linux {
-    SOURCES += \
-        ./FileDownloader/FileDownloader_curl.cpp
-}
+#core_linux {
+#    SOURCES += \
+#        ./FileDownloader/FileDownloader_curl.cpp
+#}
 core_mac {
     OBJECTIVE_SOURCES += \
         ./FileDownloader/FileDownloader_mac.mm
