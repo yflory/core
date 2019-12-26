@@ -38,6 +38,10 @@ core_linux_64 {
 }
 }
 
+core_linux {
+    QMAKE_LFLAGS += -Wl,--rpath=./:./system -Wl,--shared-memory,--no-check-features
+}
+
 DEFINES += UNICODE \
     _UNICODE \
     #DISABLE_FILE_DOWNLOADER \
@@ -118,7 +122,6 @@ LIBS += -L$$CORE_BUILDS_LIBRARIES_PATH -lHtmlFile
 LIBS += -L$$CORE_BUILDS_LIBRARIES_PATH -lUnicodeConverter
 #Crypto++
 LIBS += -L$$CORE_BUILDS_LIBRARIES_PATH -lCryptoPPLib
-
 #####################################################
 # внешнее подключение сторонних библиотек
 
