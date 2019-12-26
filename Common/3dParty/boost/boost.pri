@@ -36,7 +36,7 @@ core_release {
     LIBS += -L$$CORE_BOOST_LIBS -llibboost_regex-$$MSVC-mt-1_58
 }
 } else {
-    LIBS += -L$$CORE_BOOST_LIBS -lboost_regex
+    LIBS += -L$$CORE_BOOST_LIBS
 }
 
 }
