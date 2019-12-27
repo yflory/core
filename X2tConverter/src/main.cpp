@@ -39,6 +39,7 @@
 #include <string.h>
 #include <emscripten.h>
 
+
 #ifdef NODERAWFS
 #define CWD ""
 #else
@@ -86,21 +87,13 @@ static std::wstring utf8_to_unicode(const char *src)
 }
 #endif
 
-#if !defined(_WIN32) && !defined (_WIN64)
-	int main(int argc, char *argv[])
-#else
-	int wmain(int argc, wchar_t *argv[])
-#endif
+
+extern "C" {
+int EMSCRIPTEN_KEEPALIVE runX2T(char *arg)
 {
   FILE *file;
   int res;
   char buffer[512];
-
-  // write something locally with node
-  EM_ASM(
-    var fs = require('fs');
-    fs.writeFileSync('foobar.txt', 'yeehaw');
-  );
 
   // mount the current folder as a NODEFS instance
   // inside of emscripten
@@ -111,39 +104,14 @@ static std::wstring utf8_to_unicode(const char *src)
     FS.mount(MEMFS, {}, '/output');
   );
   std::cout << "Mapping done" << std::endl;
-   // check arguments
-    if (argc < 2)
-    {
-        // print out help topic
-
-        std::cout << std::endl;
-        std::cout << std::endl;
-        std::cout << "-------------------------------------------------------------------------------" << std::endl;
-        std::cout << "\t\tOOX/binary file converter. Version: " VALUE(INTVER)  << std::endl;
-        std::cout << "-------------------------------------------------------------------------------" << std::endl;
-        std::cout << std::endl;
-		std::cout << "USAGE: x2t \"path_to_params_xml\"" << std::endl;
-		std::cout << "or" << std::endl;
-        std::cout << "USAGE: x2t \"path_to_file_1\" \"path_to_file_2\" [\"path_to_font_selection\"]" << std::endl;
-        std::cout << "WHERE:" << std::endl;
-        std::cout << "\t\"path_to_file_1\" is a path to file to be converted" << std::endl;
-        std::cout << "\t\"path_to_file_2\" is a path to the corresponding output file" << std::endl;
-        std::cout << "\t\"path_to_font_selection\" is a path to 'font_selection.bin' location" << std::endl << std::endl;
-        std::cout << "NOTE: conversion direction will be calculated from file extensions" << std::endl << std::endl;
-
-        return getReturnErrorCode(AVS_FILEUTILS_ERROR_CONVERT_PARAMS);
-    }
 	std::wstring sArg1, sArg2, sExePath;
 
         std::cout << "Step1" << std::endl;
 #if !defined(_WIN32) && !defined (_WIN64)
-    sExePath    = utf8_to_unicode(argv [0]);
-    sArg1       = utf8_to_unicode(argv [1]);
-	if (argc >= 3) sArg2   = utf8_to_unicode(argv [2]);
+    sArg1       = utf8_to_unicode(arg);
+        std::wcout << "Arg1" << sArg1 << std::endl;
 #else
-	sExePath	= std::wstring(argv [0]);
-    sArg1		= std::wstring(argv [1]);
-	if (argc >= 3) sArg2 = std::wstring(argv [2]);
+    sArg1		= std::wstring(arg);
 #endif
         std::cout << "Step2" << std::endl;
 
@@ -165,44 +133,18 @@ static std::wstring utf8_to_unicode(const char *src)
 			result = AVS_FILEUTILS_ERROR_CONVERT_PARAMS;
 		}
 	}
-	else
-	{
-		std::wstring sArg3, sArg4, sArg5;
+	return getReturnErrorCode(result);
+}
+}
 
 #if !defined(_WIN32) && !defined (_WIN64)
-		if (argc >= 4) sArg3   = utf8_to_unicode(argv [3]);
-		if (argc >= 5) sArg4   = utf8_to_unicode(argv [4]);
-		if (argc >= 6) sArg5   = utf8_to_unicode(argv [5]);
+	int EMSCRIPTEN_KEEPALIVE main(int argc, char *argv[])
 #else
-		if (argc >= 4) sArg3 = std::wstring(argv [3]);
-		if (argc >= 5) sArg4 = std::wstring(argv [4]);
-		if (argc >= 6) sArg5 = std::wstring(argv [5]);
+	int wmain(int argc, wchar_t *argv[])
 #endif
-		if (sArg1 == L"-detectmacro")
-		{
-			InputParams oInputParams;
-			oInputParams.m_sFileFrom	= new std::wstring(sArg2);
-			
-			result = NExtractTools::detectMacroInFile(oInputParams);
-		}
-		else
-		{
-			InputParams oInputParams;
-			oInputParams.m_sFileFrom	= new std::wstring(sArg1);
-			oInputParams.m_sFileTo		= new std::wstring(sArg2);
-
-			if (argc > 3)
-			{
-				oInputParams.m_sFontDir = new std::wstring(sArg3);
-			}
-			if (argc > 4)
-			{
-				oInputParams.m_sPassword = new std::wstring(sArg4);
-				oInputParams.m_sSavePassword = new std::wstring(sArg4);
-			}
-			result = NExtractTools::fromInputParams(oInputParams);
-		}
-	}
-
-	return getReturnErrorCode(result);
+{
+  if (argc>1)
+   return runX2T(argv[1]);
+  else
+   return 0;
 }
