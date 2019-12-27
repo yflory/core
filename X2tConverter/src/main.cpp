@@ -107,33 +107,10 @@ static std::wstring utf8_to_unicode(const char *src)
   EM_ASM(
     FS.mkdir('/working');
     FS.mount(NODEFS, { root: '.' }, '/working');
+    FS.mkdir('/output');
+    FS.mount(MEMFS, {}, '/output');
   );
   std::cout << "Mapping done" << std::endl;
- // read and validate the contents of the file
-  file = fopen(CWD "foobar.txt", "r");
-  assert(file);
-  res = fread(buffer, sizeof(char), 6, file);
-  assert(res == 6);
-  fclose(file);
-
-  assert(!strcmp(buffer, "yeehaw"));
-
-  // write out something new
-  file = fopen(CWD "foobar.txt", "w");
-  assert(file);
-  res = fwrite("cheez", sizeof(char), 5, file);
-  assert(res == 5);
-  fclose(file);
-
-  // validate the changes were persisted to the underlying fs
-  EM_ASM(
-    var fs = require('fs');
-    var contents = fs.readFileSync('foobar.txt', { encoding: 'utf8' });
-    assert(contents === 'cheez');
-  );
-
-  puts("success");
-
    // check arguments
     if (argc < 2)
     {
