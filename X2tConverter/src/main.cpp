@@ -95,38 +95,28 @@ int EMSCRIPTEN_KEEPALIVE runX2T(char *arg)
   int res;
   char buffer[512];
 
-  // mount the current folder as a NODEFS instance
-  // inside of emscripten
-  EM_ASM(
-    FS.mkdir('/working');
-    FS.mount(NODEFS, { root: '.' }, '/working');
-    FS.mkdir('/output');
-    FS.mount(MEMFS, {}, '/output');
-  );
-  std::cout << "Mapping done" << std::endl;
 	std::wstring sArg1, sArg2, sExePath;
 
-        std::cout << "Step1" << std::endl;
+        std::cout << "Starting x2t" << std::endl;
 #if !defined(_WIN32) && !defined (_WIN64)
     sArg1       = utf8_to_unicode(arg);
-        std::wcout << "Arg1" << sArg1 << std::endl;
+        std::wcout << "Param file: " << sArg1 << std::endl;
 #else
     sArg1		= std::wstring(arg);
 #endif
-        std::cout << "Step2" << std::endl;
 
 	_UINT32 result = 0;
     std::wstring sXmlExt = _T(".xml");
     if((sArg1.length() > 3) && (sXmlExt == sArg1.substr(sArg1.length() - sXmlExt.length(), sXmlExt.length())))
 	{
-        std::cout << "Step3" << std::endl;
+        std::cout << "Reading param file" << std::endl;
 		NExtractTools::InputParams oInputParams;
-        std::cout << "Step3a" << std::endl;
 		if (oInputParams.FromXmlFile(sArg1) && (sArg2.empty() || oInputParams.FromXml(sArg2)))
 		{
-        std::cout << "Step4" << std::endl;
+        std::wcout << "From file " << *oInputParams.m_sFileFrom << " To file " << *oInputParams.m_sFileTo << std::endl;
+        std::cout << "Before conversion" << std::endl;
 			result = NExtractTools::fromInputParams(oInputParams);
-        std::cout << "Step5" << std::endl;
+        std::cout << "After conversion" << std::endl;
 		}
 		else
 		{
@@ -143,8 +133,15 @@ int EMSCRIPTEN_KEEPALIVE runX2T(char *arg)
 	int wmain(int argc, wchar_t *argv[])
 #endif
 {
-  if (argc>1)
+  if (argc>1) {
+   // mount the current folder as a NODEFS instance
+   // inside of emscripten
+   EM_ASM(
+    FS.mkdir('/working');
+    FS.mount(NODEFS, { root: '.' }, '/working');
+   );
    return runX2T(argv[1]);
+   }
   else
    return 0;
 }
