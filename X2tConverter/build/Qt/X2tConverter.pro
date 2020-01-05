@@ -10,7 +10,7 @@ CONFIG   -= app_bundle
 
 include(X2tConverter.pri)
 
-SOURCES += ../../src/main.cpp
+SOURCES += ../../src/main.cpp ../../src/stubdata.cpp
 
 ###############################################################################################################
 
