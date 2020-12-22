@@ -29,8 +29,8 @@ if [ ! -d $folder ]; then
 
   ## Custom gcc.jam to force correct ar and ranlib which fail under emscripten
   cp ../gcc.jam ./tools/build/src/tools/gcc.jam
-  #mv /usr/bin/rc /usr/bin/linux-rc
-  #ln -s /usr/bin/linux-rc /usr/bin/rc
+  mv /usr/bin/rc /usr/bin/linux-rc
+  ln -s /usr/bin/linux-rc /usr/bin/rc
   update-alternatives --install /usr/bin/gcc gcc /emsdk/upstream/emscripten/emcc 20
   update-alternatives --install /usr/bin/g++ g++ /emsdk/upstream/emscripten/em++ 20
   update-alternatives --install /usr/bin/clang clang /emsdk/upstream/bin/clang 20
